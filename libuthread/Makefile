@@ -3,20 +3,21 @@ lib := libuthread.a
 
 all: $(lib)
 
-targets := libuthread.a
 objs    := queue.o uthread.o context.o sem.o preempt.o
 
 CC      := gcc
-CFLAGS  := -Wall -Wextra -Werror
+CFLAGS  := -Wall -Wextra -Werror -MMD
 CFLAGS  += -g
-PANDOC  := pandoc
 
 ifneq ($(V),1)
 Q = @
 endif
 
-libuthread.a: $(objs)
-	ar rcs libuthread.a  $@ $^
+deps := $(patsubst %.o,%.d,$(objs))
+-include $(deps)
+
+$(lib): $(objs)
+	ar rcs $@ $^
 
 %.o: %.c
 	@echo "CC $@"
@@ -24,4 +25,4 @@ libuthread.a: $(objs)
 
 clean:
 	@echo "CLEAN   $@"
-	$(Q)rm -f $(targets) $(objs)
+	$(Q)rm -f $(lib) $(objs) $(deps)

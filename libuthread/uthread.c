@@ -1,5 +1,3 @@
-
-  
 #include <assert.h>
 #include <signal.h>
 #include <stddef.h>
@@ -29,10 +27,10 @@ struct uthread_tcb *uthread_current(void) {
 }
 
 void uthread_yield(void) {
-  /* TODO Phase 2 */
   struct uthread_tcb* prev_thread = (struct uthread_tcb *) malloc(sizeof(struct uthread_tcb));
   struct uthread_tcb* next_thread = (struct uthread_tcb *) malloc(sizeof(struct uthread_tcb));
 
+  preempt_disable();
   prev_thread = curr_thread;
 
   queue_enqueue(ready_queue, curr_thread);
@@ -42,24 +40,28 @@ void uthread_yield(void) {
   next_thread->state = RUN;
 
   curr_thread = next_thread;
-
+  preempt_enable();
   uthread_ctx_switch(prev_thread->ctx, next_thread->ctx);
 }
 
 void uthread_exit(void) {
-  /* TODO Phase 2 */
-  struct uthread_tcb* next_thread = (struct uthread_tcb *) malloc(sizeof(struct uthread_tcb));
-
   if (queue_length(ready_queue) > 0){
+    struct uthread_tcb* next_thread = (struct uthread_tcb *) malloc(sizeof(struct uthread_tcb));
+
+    preempt_disable();
     queue_dequeue(ready_queue, (void**) &next_thread);
 
+    curr_thread->state = ZOMBIE;
+    uthread_ctx_destroy_stack(curr_thread->stack);
+
+    preempt_enable();
     uthread_ctx_switch(curr_thread->ctx, next_thread->ctx);
     curr_thread = next_thread;
   }
 }
 
 int uthread_create(uthread_func_t func, void *arg) {
-  /* TODO Phase 2 */
+  preempt_disable();
   struct uthread_tcb* new_thread = (struct uthread_tcb*) malloc (sizeof(struct uthread_tcb));
   new_thread->ctx = malloc(sizeof(uthread_ctx_t));
   new_thread->stack = uthread_ctx_alloc_stack();
@@ -67,33 +69,44 @@ int uthread_create(uthread_func_t func, void *arg) {
 
   queue_enqueue(ready_queue, new_thread);
 
+  preempt_enable();
   uthread_ctx_init(new_thread->ctx, new_thread->stack, func, arg);
   return 0;
 }
 
 int uthread_start(uthread_func_t func, void *arg) {
-  /* TODO Phase 2 */
   struct uthread_tcb* idle_thread = (struct uthread_tcb*) malloc (sizeof(struct uthread_tcb));
   idle_thread->ctx = malloc(sizeof(uthread_ctx_t));
+  if (idle_thread->ctx == NULL) {
+    return -1;
+  }
   idle_thread->stack = uthread_ctx_alloc_stack();
+  if (idle_thread->stack == NULL) {
+    return -1;
+  }
   idle_thread->state = RUN;
 
-  //uthread_ctx_init(idle_thread->ctx, idle_thread->stack, func, arg);
+  uthread_ctx_init(idle_thread->ctx, idle_thread->stack, func, arg);
   curr_thread = idle_thread;
 
   ready_queue = queue_create();
   block_queue = queue_create();
+
+  preempt_start();
+  preempt_enable();
 
   uthread_create(func, arg);
 
   while (queue_length(ready_queue) > 0) {
     uthread_yield();
   }
+  queue_destroy(ready_queue);
+  queue_destroy(block_queue);
   return 0;
 }
 
 void uthread_block(void) {
-  /* TODO Phase 2/3 */
+  preempt_disable();
   struct uthread_tcb* next_thread = (struct uthread_tcb *) malloc(sizeof(struct uthread_tcb));
   queue_enqueue(block_queue, curr_thread);
   curr_thread->state = BLOCKED;
@@ -103,11 +116,14 @@ void uthread_block(void) {
 
   uthread_ctx_switch(curr_thread->ctx, next_thread->ctx);
   curr_thread = next_thread;
+  preempt_enable();
 }
 
 void uthread_unblock(struct uthread_tcb *uthread) {
-  /* TODO Phase 2/3 */
+  preempt_disable();
   uthread->state = READY;
   queue_dequeue(block_queue, (void**) &uthread);
   queue_enqueue(ready_queue, uthread);
+  preempt_enable();
 }
+

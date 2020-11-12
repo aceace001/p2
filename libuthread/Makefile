@@ -2,10 +2,10 @@
 lib := libuthread.a 
 
 all: $(lib)
-	ar rcs libuthread.a queue.o uthread.o context.o sem.o preempt.o
+	ar rcs libuthread.a queue.o context.o uthread.o sem.o preempt.o
 
 targets := libuthread.a
-objs    := queue.o uthread.o context.o sem.o preempt.o
+objs    := queue.o context.o uthread.o sem.o preempt.o
 
 CC      := gcc
 CFLAGS  := -Wall -Wextra -Werror

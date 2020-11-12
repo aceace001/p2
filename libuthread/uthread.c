@@ -27,19 +27,32 @@ struct uthread_tcb *uthread_current(void) {
 
 void uthread_yield(void) {
   /* TODO Phase 2 */
+  struct uthread_tcb* prev_thread = (struct uthread_tcb *) malloc(sizeof(struct uthread_tcb));
   struct uthread_tcb* next_thread = (struct uthread_tcb *) malloc(sizeof(struct uthread_tcb));
+
+  prev_thread = curr_thread;
 
   queue_enqueue(ready_queue, curr_thread);
   queue_dequeue(ready_queue, (void**) &next_thread);
   curr_thread->state = READY;
   next_thread->state = RUN;
-  uthread_ctx_switch(curr_thread->ctx, next_thread->ctx);
   curr_thread = next_thread;
+  uthread_ctx_switch(prev_thread->ctx, next_thread->ctx);
 }
 
 void uthread_exit(void) {
   /* TODO Phase 2 */
   queue_dequeue(ready_queue, (void **)&curr_thread);
+  uthread_ctx_destroy_stack(curr_thread->stack);
+  free(curr_thread->ctx);
+  free(curr_thread);
+  struct uthread_tcb* next_thread = (struct uthread_tcb *) malloc(sizeof(struct uthread_tcb));
+  if (queue_length(ready_queue)>0){
+    queue_dequeue(ready_queue, (void**) &next_thread);
+    uthread_ctx_switch(curr_thread->ctx, next_thread->ctx);
+    curr_thread = next_thread;
+
+  }
 }
 
 int uthread_create(uthread_func_t func, void *arg) {
@@ -48,8 +61,8 @@ int uthread_create(uthread_func_t func, void *arg) {
   new_thread->ctx = malloc(sizeof(uthread_ctx_t));
   new_thread->stack = uthread_ctx_alloc_stack();
   new_thread->state = READY;
-  uthread_ctx_init(new_thread->ctx, new_thread->stack, func, arg);
   queue_enqueue(ready_queue, new_thread);
+  uthread_ctx_init(new_thread->ctx, new_thread->stack, func, arg);
   return 0;
 }
 
@@ -59,9 +72,12 @@ int uthread_start(uthread_func_t func, void *arg) {
   idle_thread->ctx = malloc(sizeof(uthread_ctx_t));
   idle_thread->stack = uthread_ctx_alloc_stack();
   idle_thread->state = RUN;
+  //uthread_ctx_init(idle_thread->ctx, idle_thread->stack, func, arg);
   curr_thread = idle_thread;
   ready_queue = queue_create();
+  //queue_enqueue(ready_queue, idle_thread);
   uthread_create(func, arg);
+
   while (queue_length(ready_queue) > 0) {
     uthread_yield();
   }

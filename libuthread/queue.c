@@ -131,12 +131,7 @@ int queue_iterate(queue_t queue, queue_func_t func)
 	struct node* iterate_node = queue->head;
 
 	while (iterate_node != NULL) {
-		if (func(iterate_node->data, arg) == 1) {
-			*data = iterate_node->data;
-			return 0;
-		} else {
-			iterate_node = iterate_node->next;
-		}
+		func(iterate_node->data);
 	}
 
 	return 0;
@@ -150,4 +145,5 @@ int queue_length(queue_t queue)
 	}
 	return queue->length;
 }
+
 

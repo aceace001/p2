@@ -1,5 +1,5 @@
 # Target library
-lib := libuthread.a
+lib 	:= libuthread.a
 objs    := preempt.o context.o uthread.o queue.o sem.o
 
 CC      := gcc

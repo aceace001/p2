@@ -19,6 +19,8 @@ sem_t sem_create(size_t count)
 
 	sem->count = count;
 	sem->queue_block = queue_create();
+
+	return sem;
 }
 
 int sem_destroy(sem_t sem)
@@ -44,7 +46,7 @@ int sem_down(sem_t sem)
 
 	while (sem->count == 0) {
 		queue_enqueue(sem->queue_block, &tid);
-		thread_block();
+		uthread_block();
 	}
 
 	sem->count -=1;
@@ -56,7 +58,7 @@ int sem_down(sem_t sem)
 int sem_up(sem_t sem)
 {
 	/* TODO Phase 3 */
-	pthread_t tid;
+	struct uthread_tcb *tid;
 
 	if (sem == NULL) {
 		return -1;
@@ -65,9 +67,10 @@ int sem_up(sem_t sem)
 	sem->count += 1;
 	if (queue_length(sem->queue_block) > 0) {
 		queue_dequeue(sem->queue_block, (void*) &tid);
-		thread_unblock(tid);
+		uthread_unblock(tid);
 	}
 
 	return 0;
 }
+
 

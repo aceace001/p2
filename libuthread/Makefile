@@ -13,7 +13,7 @@ endif
 all: $(lib)
 
 deps := $(patsubst %.o,%.d,$(objs))
--include$(deps)
+-include $(deps)
 
 $(lib): $(objs)
 	$(Q)$(CC) $(CFLAGS) -o $@ $^

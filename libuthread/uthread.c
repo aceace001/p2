@@ -51,13 +51,14 @@ void uthread_yield(void) {
 void uthread_exit(void) {
   /* TODO Phase 2 */
   curr_thread->state = ZOMBIE;
-  uthread_ctx_destroy_stack(curr_thread->stack);
   struct uthread_tcb* next_thread = (struct uthread_tcb *) malloc(sizeof(struct uthread_tcb));
 
   if (queue_length(ready_queue) > 0){
+    struct uthread_tcb* next_thread = (struct uthread_tcb *) malloc(sizeof(struct uthread_tcb));
     queue_dequeue(ready_queue, (void**) &next_thread);
 
     uthread_ctx_switch(curr_thread->ctx, next_thread->ctx);
+    uthread_ctx_destroy_stack(curr_thread->stack);
     curr_thread = next_thread;
   }
 }
@@ -82,7 +83,7 @@ int uthread_start(uthread_func_t func, void *arg) {
   idle_thread->stack = uthread_ctx_alloc_stack();
   idle_thread->state = RUN;
 
-  uthread_ctx_init(idle_thread->ctx, idle_thread->stack, func, arg);
+  //uthread_ctx_init(idle_thread->ctx, idle_thread->stack, func, arg);
   curr_thread = idle_thread;
 
   ready_queue = queue_create();

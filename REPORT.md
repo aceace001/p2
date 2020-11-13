@@ -10,6 +10,7 @@ Threads are represented by TCB (Thread Control Block), and each TCB contains the
 ### Phase 4: preemption
 Preemption is implemented through `sigaction` and `itimerval`. When `preempt_start()` gets called, it will initiate an alarm that forces the current running thread to yield every 10000 microseconds, which is 100 times a second. We also needs to store the previous signals and timers so when `preempt_stop()` gets called they will get restored. However, we do not want preemption to interrupt us when we are in a critical section, so we must also implement `preempt_enable()` and `preempt_disable()` to make sure the timer does not interrupt our atomic flow of action when we needed it. We always call `preempt_disable()` before operations such as enqueueing and dequeueing so order of operations are not messed up.
 
-## Shortcomings
+## Shortcomings and Conclusion
+Our uthread implementations could be a bit more robust when handling errors and such. It could also use some work at cleaning the malloc data and freeing the pointers. Our semaphore implementation also still needs a bit more work; the `sem_up()` and `sem_down()` functions does not correctly block and unblock the correct threads sometimes. For preemption, while we are happy with our implementation, our tester seems a bit silly and might not actually accurately demonstrate the preemptiveness of our library. 
 
-## Conclusion
+Overall, we are not 100% satisfied with our final product. Compared to last project, this project definitely required a lot more thinking and tinkering to get right, as there are quite a bit of intricate details we must take care of. This was a good test of not only our coding skills but also our understanding of multithreading and synchronizations.

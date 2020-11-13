@@ -1,5 +1,4 @@
 # REPORT
----
 ## Design
 
 ### Phase 1: queue
@@ -9,8 +8,8 @@ Threads are represented by TCB (Thread Control Block), and each TCB contains the
 ### Phase 3: semaphore
 
 ### Phase 4: preemption
-j
+Preemption is implemented through `sigaction` and `itimerval`. When `preempt_start()` gets called, it will initiate an alarm that forces the current running thread to yield every 10000 microseconds, which is 100 times a second. We also needs to store the previous signals and timers so when `preempt_stop()` gets called they will get restored. However, we do not want preemption to interrupt us when we are in a critical section, so we must also implement `preempt_enable()` and `preempt_disable()` to make sure the timer does not interrupt our atomic flow of action when we needed it. We always call `preempt_disable()` before operations such as enqueueing and dequeueing so order of operations are not messed up.
 
 ## Shortcomings
----
+
 ## Conclusion

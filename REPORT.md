@@ -1,8 +1,3 @@
----
-output:
-  html_document: default
-  pdf_document: default
----
 # **ECS150 Project2 Report**
 
 ## Phase 1: queue

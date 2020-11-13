@@ -51,7 +51,6 @@ void uthread_yield(void) {
 void uthread_exit(void) {
   /* TODO Phase 2 */
   curr_thread->state = ZOMBIE;
-  struct uthread_tcb* next_thread = (struct uthread_tcb *) malloc(sizeof(struct uthread_tcb));
 
   if (queue_length(ready_queue) > 0){
     struct uthread_tcb* next_thread = (struct uthread_tcb *) malloc(sizeof(struct uthread_tcb));

@@ -1,13 +1,12 @@
 /*
- * Thread creation and yielding test
+ * Slight modified yield test
  *
- * Tests the creation of multiples threads and the fact that a parent thread
- * should get returned to before its child is executed. The way the printing,
- * thread creation and yielding is done, the program should output:
+ * This is nearly identical to the yield test except that we do not yield before
+ * printing thread 3. The program should output:
  *
  * thread1
- * thread2
  * thread3
+ * thread2
  */
 
 #include <stdio.h>
@@ -17,7 +16,6 @@
 
 void thread3(void *arg)
 {
-  uthread_yield();
   printf("thread3\n");
 }
 

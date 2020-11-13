@@ -27,13 +27,13 @@ void handler() {
 
 void preempt_disable(void)
 {
-  // block signals
+  // block sigaction
   sigprocmask(SIG_BLOCK, &act.sa_mask, &act_old.sa_mask);
 }
 
 void preempt_enable(void)
 {
-// unblock signals
+// unblock sigaction
   sigprocmask(SIG_UNBLOCK, &act.sa_mask, &act_old.sa_mask);
 }
 

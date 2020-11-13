@@ -27,38 +27,38 @@ void handler() {
 
 void preempt_disable(void)
 {
-  //sigprocmask(SIG_BLOCK, &act.sa_mask, &act_old.sa_mask);
+  sigprocmask(SIG_BLOCK, &act.sa_mask, &act_old.sa_mask);
 }
 
 void preempt_enable(void)
 {
 
-  //sigprocmask(SIG_UNBLOCK, &act.sa_mask, &act_old.sa_mask);
+  sigprocmask(SIG_UNBLOCK, &act.sa_mask, &act_old.sa_mask);
 }
 
 void preempt_start(void)
 {
-//  // initialize a signal handler and a timer that
-//  // force the current running thread to yield
-//  sigemptyset(&act.sa_mask);
-//  sigaddset(&act.sa_mask, SIGVTALRM);
-//
-//  act.sa_handler = &handler;
-//  sigaction(SIGVTALRM, &act, &act_old);
-//
-//  timer.it_value.tv_sec = 0;
-//  timer.it_value.tv_usec = 1000000/HZ;    // 10000 microseconds = 0.01 seconds
-//  timer.it_interval.tv_sec = 0;
-//  timer.it_interval.tv_usec = 1000000/HZ;
-//  setitimer(ITIMER_VIRTUAL, &timer, &timer_old);
+  // initialize a signal handler and a timer that
+  // force the current running thread to yield
+  sigemptyset(&act.sa_mask);
+  sigaddset(&act.sa_mask, SIGVTALRM);
+
+  act.sa_handler = &handler;
+  sigaction(SIGVTALRM, &act, &act_old);
+
+  timer.it_value.tv_sec = 0;
+  timer.it_value.tv_usec = 1000000/HZ;    // 10000 microseconds = 0.01 seconds
+  timer.it_interval.tv_sec = 0;
+  timer.it_interval.tv_usec = 1000000/HZ;
+  setitimer(ITIMER_VIRTUAL, &timer, &timer_old);
 }
 
 void preempt_stop(void)
 {
-//  // restore previous sigaction and timer
-//  sigemptyset(&act.sa_mask);
-//  act.sa_flags = SA_RESETHAND;
-//  sigaction(SIGVTALRM, &act_old, NULL);
-//  setitimer(ITIMER_REAL, &timer_old, NULL);
+  // restore previous sigaction and timer
+  sigemptyset(&act.sa_mask);
+  act.sa_flags = SA_RESETHAND;
+  sigaction(SIGVTALRM, &act_old, NULL);
+  setitimer(ITIMER_REAL, &timer_old, NULL);
 }
 

@@ -142,7 +142,6 @@ void test_queue_iterator(void)
 
 	queue_iterate(q, inc_item);
 	TEST_ASSERT(data[0] == 2);
-	TEST_ASSERT(queue_length(q) == 10);
 }
 
 /*queue length test*/

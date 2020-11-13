@@ -17,6 +17,7 @@
 
 struct sigaction act;
 struct itimerval timer;
+
 struct sigaction act_old;
 struct itimerval timer_old;
 
@@ -26,19 +27,19 @@ void handler() {
 
 void preempt_disable(void)
 {
-	/* TODO Phase 4 */
   sigprocmask(SIG_BLOCK, &act.sa_mask, &act_old.sa_mask);
 }
 
 void preempt_enable(void)
 {
-	/* TODO Phase 4 */
+
   sigprocmask(SIG_UNBLOCK, &act.sa_mask, &act_old.sa_mask);
 }
 
 void preempt_start(void)
 {
-	/* TODO Phase 4 */
+  // initialize a signal handler and a timer that
+  // force the current running thread to yield
   sigemptyset(&act.sa_mask);
   sigaddset(&act.sa_mask, SIGVTALRM);
 
@@ -46,7 +47,7 @@ void preempt_start(void)
   sigaction(SIGVTALRM, &act, &act_old);
 
   timer.it_value.tv_sec = 0;
-  timer.it_value.tv_usec = 1000000/HZ;
+  timer.it_value.tv_usec = 1000000/HZ;    // 10000 microseconds = 0.01 seconds
   timer.it_interval.tv_sec = 0;
   timer.it_interval.tv_usec = 1000000/HZ;
   setitimer(ITIMER_VIRTUAL, &timer, &timer_old);
@@ -54,7 +55,7 @@ void preempt_start(void)
 
 void preempt_stop(void)
 {
-	/* TODO Phase 4 */
+  // restore previous sigaction and timer
   sigemptyset(&act.sa_mask);
   act.sa_flags = SA_RESETHAND;
   sigaction(SIGVTALRM, &act_old, NULL);

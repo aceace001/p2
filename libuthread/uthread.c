@@ -1,3 +1,7 @@
+//
+// Created by zwang on 11/12/2020.
+//
+
 #include <assert.h>
 #include <signal.h>
 #include <stddef.h>
@@ -78,7 +82,7 @@ int uthread_start(uthread_func_t func, void *arg) {
   idle_thread->stack = uthread_ctx_alloc_stack();
   idle_thread->state = RUN;
 
-  //uthread_ctx_init(idle_thread->ctx, idle_thread->stack, func, arg);
+  uthread_ctx_init(idle_thread->ctx, idle_thread->stack, func, arg);
   curr_thread = idle_thread;
 
   ready_queue = queue_create();
@@ -110,4 +114,6 @@ void uthread_unblock(struct uthread_tcb *uthread) {
   uthread->state = READY;
   queue_dequeue(block_queue, (void**) &uthread);
   queue_enqueue(ready_queue, uthread);
-} 
+}
+
+
